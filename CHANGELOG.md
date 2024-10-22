@@ -3,6 +3,57 @@
 # [?.?.?] Unreleased
 
 ### Added
+- `tlua::Push` trait implementations for `OsString`, `OsStr`, `Path`, `PathBuf`
+- `tlua::LuaRead` trait implementations for `OsString`, `PathBuf`
+- tlua::LuaTable::metatable which is a better alternative to the existing `tlua::LuaTable::get_or_create_metatable`
+- `ffi::tarantool::box_schema_version` and `ffi::tarantool::box_session_id` functions
+- `network::protocol::SyncIndex::get` method
+- `network::protocol::codec::{LegacyCall, Nop, Prepare, Begin, Commit, Rollback}` variants
+- `network::protocol::codec::Header::encode_from_parts` function
+- `network::protocol::codec::iproto_key::SQL_INFO` constant
+- Added optional field `connect_timeout` to `network::protocol::Config`.
+Used in `network::client::Client::connect_with_config` for
+restricting time connection establishment.
+- Untagged enum represention as in serde with `#[encode(untagged)]` attribute
+- `tlua::Nil` now supports (de)serialization via serde
+
+### Changed
+- `network::protocol::codec::IProtoType` uses C language representation
+- `cbus::sync::std::ThreadWaker` now uses internal thread FIFO queue when blocking threads on send.
+
+### Fixed
+- `tlua::{Push, PushInto, LuaRead}` now work for HashSet & HashMap with custom hashers.
+
+- Use after free in `fiber::Builder::start_non_joinable` when the fiber exits without yielding.
+- Incorrect, off-spec MP Ext type: caused runtime errors on some platforms.
+- Panic in coio test starting from 1.80 Rust.
+- Impossible to use procedural macros(like `tarantool::proc`, `tarantool::test`) through reexporting tarantool.
+
+### Deprecated
+- tlua::LuaTable::get_or_create_metatable is deprecated now in favor of tlua::LuaTable::metatable.
+
+### Breaking changes
+- Replace `network::protocol::codec::{encode_header, decode_header}` functions
+  with `network::protocol::codec::Header::{encode, decode}` methods.
+- Use `extern "C-unwind"` instead of `extern "C"` for all trampolines which take `*mut ffi::lua_State`
+  (checked with `rg 'extern "C".*lua_State'`). `tlua::error!` throws an exception to unwind the stack,
+  hence we need to use a proper ABI to fix UB in picodata.
+
+### Added (picodata)
+
+### Changed (picodata)
+
+### Fixed (picodata)
+
+### Breaking changes (picodata)
+- Add session ID to the argument list of the `sql_prepare_ext`.
+- Replace `sql_unprepare` with `sql_unprepare_ext` (contains an additional session ID argument).
+
+
+
+# [5.0.0] Aug 06 2024
+
+### Added
 
 - `say_info`, `say_verbose`, `say_debug`, `say_warn`, `say_crit`, `say_error`,
   `say_fatal`, `say_sys_error` macros for basic logging into the tarantool's
